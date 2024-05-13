@@ -1,5 +1,6 @@
 from django.http import Http404, HttpResponse, HttpResponseNotFound
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
 # Create your views here.
 def index(request):
@@ -15,7 +16,10 @@ def categories_by_slug(request, cat_slug):
 
 def archive(request, year):
     if year > 2024:
-        raise Http404()
+        uri = reverse('cats', args=('music',))
+        return redirect(uri, permanent=True) # permanent need if code 301 must be else code 302
+        # return redirect(index, permanent=True) # permanent need if code 301 must be else code 302
+        # return redirect('/', permanent=True) # permanent need if code 301 must be else code 302
     return HttpResponse(f'<h1>Архив по годам</h1><p>{year}</p>')
 
 def page_not_found(request, exception):
