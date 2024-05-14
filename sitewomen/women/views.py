@@ -5,7 +5,12 @@ from django.template.loader import render_to_string
 from django.template.defaultfilters import slugify
 
 
-menu = ["О сайте", "Добавить статью", "Обратная связь", "Войти"]
+menu = [
+    {'title': 'О сайте', 'url_name': 'about'},
+    {'title': 'Добавить статью', 'url_name': 'add_page'},
+    {'title': 'Обратная связь', 'url_name': 'contact'},
+    {'title': 'Войти', 'url_name': 'login'},
+]
 
 data_db = [
     {'id':1, 'title': 'Анджелина Джоли', 'content': 'Биография Анджелины Джоли', 'is_published': True},
@@ -35,24 +40,18 @@ def about(request):
     return render(request, "women/about.html", context=data)
 
 
-def categories(request, cat_id):
-    return HttpResponse(f"<h1>Статьи по категориям</h1><p>Категория: {cat_id}</p>")
+def show_post(request, post_id):
+    return HttpResponse(f'Отображение статьи с id = {post_id}')
 
 
-def categories_by_slug(request, cat_slug):
-    print(request.GET)
-    return HttpResponse(f"<h1>Статьи по slug</h1><p>Категория: {cat_slug}</p>")
+def addpage(request):
+        return HttpResponse(f'Добавление статьи')
 
+def contact(request):
+        return HttpResponse(f'Обратная связь')
 
-def archive(request, year):
-    if year > 2024:
-        uri = reverse("cats", args=("music",))
-        return redirect(
-            uri, permanent=True
-        )  # permanent need if code 301 must be else code 302
-        # return redirect(index, permanent=True) # permanent need if code 301 must be else code 302
-        # return redirect('/', permanent=True) # permanent need if code 301 must be else code 302
-    return HttpResponse(f"<h1>Архив по годам</h1><p>{year}</p>")
+def login(request):
+        return HttpResponse(f'Авторизация')
 
 
 def page_not_found(request, exception):
