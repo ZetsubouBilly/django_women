@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 
 # Create your models here.
+#  Women.objects.filter(Q(pk__in=[1,2,5])| Q(cat_id=2), title__icontains="ра")
 
 class PublishedManager(models.Manager):
     def get_queryset(self):
