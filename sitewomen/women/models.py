@@ -3,7 +3,8 @@ from django.urls import reverse
 
 # Create your models here.
 #  Women.objects.filter(Q(pk__in=[1,2,5])| Q(cat_id=2), title__icontains="ра")
-
+# Women.objects.filter(pk__gt=F("cat_id"))
+# lst = Husband.objects.all().annotate(is_married=Value(True))
 class PublishedManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(is_published=Women.Status.PUBLISHED)
@@ -65,6 +66,7 @@ class TagPost(models.Model):
 class Husband(models.Model):
     name = models.CharField(max_length=100, db_index=True)
     age = models.IntegerField(null=True)
+    m_count = models.IntegerField(blank=True, default=0)
     # slug = models.SlugField(max_length=255, unique=True, db_index=True)
 
     def __str__(self):
