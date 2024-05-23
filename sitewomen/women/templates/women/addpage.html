@@ -1,0 +1,26 @@
+{% extends 'base.html' %} {% block content %}
+<h1>{{title}}</h1>
+<form action="" method="post">
+    {% csrf_token %}
+  <p>
+    <label for="id_1">Текст</label>
+    <input type="text" name="filed_text" id="id_1" />
+  </p>
+  <p>
+    <label for="id_2">Отментка</label>
+    <input type="checkbox" name="filed_check" id="id_2" />
+  </p>
+  <p>
+    <label for="id_3">Число</label>
+    <input type="number" name="filed_num" id="id_3" />
+  </p>
+  <p>
+    <label for="id_4">Пароль</label>
+    <input type="password" name="filed_psw" id="id_4" />
+  </p>
+  <p>
+    <button type="submit">Отправить</button>
+  </p>
+</form>
+
+{% endblock %}
