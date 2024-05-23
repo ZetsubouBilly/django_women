@@ -60,7 +60,7 @@ def addpage(request):
                 return redirect("home")
             except:
                 form.add_error(None, "Ошибка добавления поста")
-                # return HttpResponse(f"Не удалось добавить запись в базу данных")
+                return HttpResponse(f"Не удалось добавить запись в базу данных")
             # form.save()
             # return redirect("home")
     else:
