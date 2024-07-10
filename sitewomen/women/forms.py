@@ -45,3 +45,7 @@ class AddPostForm(forms.ModelForm):
         if len(title) > 100:
             raise ValidationError('Длина превышает 100 символов')
         return title
+    
+
+class UploadFileForm(forms.Form):
+    file = forms.ImageField(label="Файл")

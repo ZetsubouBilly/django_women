@@ -1,10 +1,13 @@
+import os
+import uuid
 from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.template.loader import render_to_string
-from django.template.defaultfilters import slugify
+# from django.template.loader import render_to_string
+# from django.template.defaultfilters import slugify
 
-from .forms import AddPostForm
+
+from .forms import AddPostForm, UploadFileForm
 
 from .models import TagPost, Women, Category
 
@@ -30,16 +33,26 @@ def index(request):
 
 
 def handle_uploaded_file(f):
-    with open(f"uploads/{f.name}", "wb+") as destination:
+    directory = 'uploads'
+    unique_filename = str(uuid.uuid1())
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    
+    with open(f'uploads/{unique_filename}', 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
 
 def about(request):
     if request.method == 'POST':
-        handle_uploaded_file(request.FILES['file_upload'])
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            handle_uploaded_file(form.cleaned_data['file'])       
+    else:
+        form = UploadFileForm()
     data = {
         "title": "О нас",
         "menu": menu,
+        "form": form
     }
 
     return render(request, "women/about.html", context=data)
