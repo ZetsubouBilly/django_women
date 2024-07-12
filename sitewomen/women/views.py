@@ -3,6 +3,9 @@ import uuid
 from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views import View
+from django.views.generic import TemplateView
+
 # from django.template.loader import render_to_string
 # from django.template.defaultfilters import slugify
 
@@ -32,30 +35,44 @@ def index(request):
     return render(request, "women/index.html", context=data)
 
 
+class WomenHome(TemplateView):
+    template_name = "women/index.html"
+    extra_context = {
+        "title": "Главная страница",
+        "menu": menu,
+        "posts": Women.published.all().select_related("cat"),
+        "cat_selected": 0,
+    }
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['title'] = 'Главная страница'
+    #     context['menu'] = menu
+    #     context['posts'] = Women.published.all().select_related("cat")
+    #     context['cat_selected'] = int(self.request.GET.get('cat_id', 0))
+    #     return context
+
 # def handle_uploaded_file(f):
 #     directory = 'uploads'
 #     unique_filename = str(uuid.uuid1())
 #     if not os.path.exists(directory):
 #         os.makedirs(directory)
-    
+
 #     with open(f'uploads/{unique_filename}', 'wb+') as destination:
 #         for chunk in f.chunks():
 #             destination.write(chunk)
 
+
 def about(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            # handle_uploaded_file(form.cleaned_data['file'])     
-            fp = UploadFiles(file=form.cleaned_data['file'])
+            # handle_uploaded_file(form.cleaned_data['file'])
+            fp = UploadFiles(file=form.cleaned_data["file"])
             fp.save()
     else:
         form = UploadFileForm()
-    data = {
-        "title": "О нас",
-        "menu": menu,
-        "form": form
-    }
+    data = {"title": "О нас", "menu": menu, "form": form}
 
     return render(request, "women/about.html", context=data)
 
@@ -72,32 +89,40 @@ def show_post(request, post_slug):
     return render(request, "women/post.html", context=data)
 
 
-def addpage(request):
-    if request.method == "POST":
+# def addpage(request):
+#     if request.method == "POST":
+#         form = AddPostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             # print(form.cleaned_data)
+#             # try:
+#             #     Women.objects.create(**form.cleaned_data)
+#             #     return redirect("home")
+#             # except:
+#             #     form.add_error(None, "Ошибка добавления поста")
+#             #     return HttpResponse(f"Не удалось добавить запись в базу данных")
+#             form.save()
+#             return redirect("home")
+#     else:
+#         form = AddPostForm()
+
+#     data = {"menu": menu, "title": "Добавление статьи", "form": form}
+#     return render(request, "women/addpage.html", data)
+
+
+class AddPage(View):
+    def get(self, request):
+        form = AddPostForm()
+        data = {"menu": menu, "title": "Добавление статьи", "form": form}
+        return render(request, "women/addpage.html", data)
+
+    def post(self, request):
         form = AddPostForm(request.POST, request.FILES)
         if form.is_valid():
-            # print(form.cleaned_data)
-            # try:
-            #     Women.objects.create(**form.cleaned_data)
-            #     return redirect("home")
-            # except:
-            #     form.add_error(None, "Ошибка добавления поста")
-            #     return HttpResponse(f"Не удалось добавить запись в базу данных")
             form.save()
             return redirect("home")
-    else:
-        form = AddPostForm()
 
-    data = {
-        "menu": menu, 
-        "title": "Добавление статьи",
-        'form': form
-        }
-    return render(
-        request,
-        "women/addpage.html",
-        data
-    )
+        data = {"menu": menu, "title": "Добавление статьи", "form": form}
+        return render(request, "women/addpage.html", data)
 
 
 def contact(request):
