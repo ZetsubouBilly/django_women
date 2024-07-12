@@ -9,7 +9,7 @@ from django.urls import reverse
 
 from .forms import AddPostForm, UploadFileForm
 
-from .models import TagPost, Women, Category
+from .models import TagPost, UploadFiles, Women, Category
 
 
 menu = [
@@ -32,21 +32,23 @@ def index(request):
     return render(request, "women/index.html", context=data)
 
 
-def handle_uploaded_file(f):
-    directory = 'uploads'
-    unique_filename = str(uuid.uuid1())
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+# def handle_uploaded_file(f):
+#     directory = 'uploads'
+#     unique_filename = str(uuid.uuid1())
+#     if not os.path.exists(directory):
+#         os.makedirs(directory)
     
-    with open(f'uploads/{unique_filename}', 'wb+') as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
+#     with open(f'uploads/{unique_filename}', 'wb+') as destination:
+#         for chunk in f.chunks():
+#             destination.write(chunk)
 
 def about(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            handle_uploaded_file(form.cleaned_data['file'])       
+            # handle_uploaded_file(form.cleaned_data['file'])     
+            fp = UploadFiles(file=form.cleaned_data['file'])
+            fp.save()
     else:
         form = UploadFileForm()
     data = {
@@ -72,7 +74,7 @@ def show_post(request, post_slug):
 
 def addpage(request):
     if request.method == "POST":
-        form = AddPostForm(request.POST)
+        form = AddPostForm(request.POST, request.FILES)
         if form.is_valid():
             # print(form.cleaned_data)
             # try:
