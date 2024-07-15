@@ -1,10 +1,11 @@
 import os
 import uuid
+from django.db.models.query import QuerySet
 from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 
 # from django.template.loader import render_to_string
 # from django.template.defaultfilters import slugify
@@ -24,25 +25,29 @@ menu = [
 
 
 # Create your views here.
-def index(request):
-    posts = Women.published.all().select_related("cat")
-    data = {
-        "title": "Главная страница",
-        "menu": menu,
-        "posts": posts,
-        "cat_selected": 0,
-    }
-    return render(request, "women/index.html", context=data)
+# def index(request):
+#     posts = Women.published.all().select_related("cat")
+#     data = {
+#         "title": "Главная страница",
+#         "menu": menu,
+#         "posts": posts,
+#         "cat_selected": 0,
+#     }
+#     return render(request, "women/index.html", context=data)
 
 
-class WomenHome(TemplateView):
+class WomenHome(ListView):
+    # model = Women
     template_name = "women/index.html"
+    context_object_name = 'posts'
     extra_context = {
         "title": "Главная страница",
         "menu": menu,
-        "posts": Women.published.all().select_related("cat"),
         "cat_selected": 0,
     }
+
+    def get_queryset(self):
+        return Women.published.all().select_related("cat")
 
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)
@@ -133,16 +138,33 @@ def login(request):
     return HttpResponse(f"Авторизация")
 
 
-def show_category(request, cat_slug):
-    category = get_object_or_404(Category, slug=cat_slug)
-    posts = Women.published.filter(cat_id=category.pk).select_related("cat")
-    data = {
-        "title": f"Рубрика: {category.name}",
-        "menu": menu,
-        "posts": posts,
-        "cat_selected": category.pk,
-    }
-    return render(request, "women/index.html", context=data)
+# def show_category(request, cat_slug):
+#     category = get_object_or_404(Category, slug=cat_slug)
+#     posts = Women.published.filter(cat_id=category.pk).select_related("cat")
+#     data = {
+#         "title": f"Рубрика: {category.name}",
+#         "menu": menu,
+#         "posts": posts,
+#         "cat_selected": category.pk,
+#     }
+#     return render(request, "women/index.html", context=data)
+
+
+class WomenCategory(ListView):
+    template_name = "women/index.html"
+    context_object_name = 'posts'
+    allow_empty = False
+
+    def get_queryset(self):
+        return Women.published.filter(cat__slug=self.kwargs['cat_slug']).select_related("cat")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cat = context['posts'][0].cat
+        context['title'] = 'Категория - '+ cat.name
+        context['menu'] = menu        
+        context['cat_selected'] = cat.pk
+        return context
 
 
 def show_tag_postlist(request, tag_slug):
