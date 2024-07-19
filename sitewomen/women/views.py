@@ -1,12 +1,11 @@
-import os
-import uuid
+
 from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
 from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView
+from django.views.generic import TemplateView, ListView, DetailView, FormView
 
 # from django.template.loader import render_to_string
 # from django.template.defaultfilters import slugify
@@ -132,20 +131,35 @@ class ShowPost(DetailView):
 #     return render(request, "women/addpage.html", data)
 
 
-class AddPage(View):
-    def get(self, request):
-        form = AddPostForm()
-        data = {"menu": menu, "title": "Добавление статьи", "form": form}
-        return render(request, "women/addpage.html", data)
+# class AddPage(View):
+#     def get(self, request):
+#         form = AddPostForm()
+#         data = {"menu": menu, "title": "Добавление статьи", "form": form}
+#         return render(request, "women/addpage.html", data)
 
-    def post(self, request):
-        form = AddPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect("home")
+#     def post(self, request):
+#         form = AddPostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return redirect("home")
 
-        data = {"menu": menu, "title": "Добавление статьи", "form": form}
-        return render(request, "women/addpage.html", data)
+#         data = {"menu": menu, "title": "Добавление статьи", "form": form}
+#         return render(request, "women/addpage.html", data)
+
+
+class AddPage(FormView):
+    form_class = AddPostForm
+    template_name = "women/addpage.html"
+    success_url = reverse_lazy("home")
+    extra_context = {
+        "title": "Добавление статьи",
+        "menu": menu,
+        
+    }
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
 
 def contact(request):
