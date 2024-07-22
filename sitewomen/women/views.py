@@ -5,7 +5,7 @@ from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView, FormView
+from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
 
 # from django.template.loader import render_to_string
 # from django.template.defaultfilters import slugify
@@ -147,8 +147,10 @@ class ShowPost(DetailView):
 #         return render(request, "women/addpage.html", data)
 
 
-class AddPage(FormView):
+class AddPage(CreateView):
     form_class = AddPostForm
+    # model = Women
+    # fields = ["title", "slug", "content", "photo", "is_published", "cat"]
     template_name = "women/addpage.html"
     success_url = reverse_lazy("home")
     extra_context = {
@@ -157,9 +159,27 @@ class AddPage(FormView):
         
     }
 
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
+
+class  UpdatePage(UpdateView):
+    model = Women
+    fields = ["title", "content", "photo", "is_published", "cat"]
+    template_name = "women/addpage.html"
+    success_url = reverse_lazy("home")
+    extra_context = {
+        "title": "Редактирование статьи",
+        "menu": menu,
+        
+    }
+
+class DeletePage(DeleteView):
+    model = Women
+    template_name = "women/addpage.html"
+    success_url = reverse_lazy("home")
+    extra_context = {
+        "title": "Удаление статьи",
+        "menu": menu,
+        
+    }
 
 
 def contact(request):
