@@ -8,6 +8,8 @@ from django.views import View
 from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
 from .utils import DataMixin
 
+from django.core.paginator import Paginator
+
 # from django.template.loader import render_to_string
 # from django.template.defaultfilters import slugify
 
@@ -20,11 +22,12 @@ from .models import TagPost, UploadFiles, Women, Category
 
 
 
-class WomenHome(DataMixin,ListView):
+class WomenHome(DataMixin, ListView):
     template_name = "women/index.html"
     context_object_name = 'posts'
     title_page = "Главная страница"
     cat_selected = 0
+    
 
     def get_queryset(self):
         return Women.published.all().select_related("cat")
@@ -33,15 +36,21 @@ class WomenHome(DataMixin,ListView):
 
 
 def about(request):
-    if request.method == "POST":
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
+    contact_list = Women.published.all()
+    paginator = Paginator(contact_list,3)
+
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    # if request.method == "POST":
+    #     form = UploadFileForm(request.POST, request.FILES)
+    #     if form.is_valid():
             
-            fp = UploadFiles(file=form.cleaned_data["file"])
-            fp.save()
-    else:
-        form = UploadFileForm()
-    data = {"title": "О нас",  "form": form}
+    #         fp = UploadFiles(file=form.cleaned_data["file"])
+    #         fp.save()
+    # else:
+    #     form = UploadFileForm()
+    # data = {"title": "О нас",  "form": form}
+    data = {"title": "О нас",  "page_obj": page_obj}
 
     return render(request, "women/about.html", context=data)
 
@@ -104,6 +113,7 @@ class WomenCategory(DataMixin, ListView):
     template_name = "women/index.html"
     context_object_name = 'posts'
     allow_empty = False
+    
 
     def get_queryset(self):
         
