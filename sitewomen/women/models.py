@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.core.validators import MinLengthValidator, MaxLengthValidator
-
+from django.contrib.auth import get_user_model
 from django.template.defaultfilters import slugify
 
 # Create your models here.
@@ -38,6 +38,7 @@ class Women(models.Model):
     cat = models.ForeignKey('Category', on_delete=models.PROTECT, related_name='posts', verbose_name="Категория")
     tags = models.ManyToManyField('TagPost', blank=True, related_name='tags', verbose_name="Теги")
     husband = models.OneToOneField('Husband', on_delete=models.SET_NULL, null=True, blank=True, related_name='woman', verbose_name="Муж")
+    author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name='posts', null=True, default=None)
 
     def __str__(self):
         return self.title
