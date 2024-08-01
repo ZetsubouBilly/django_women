@@ -7,9 +7,10 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
 from .utils import DataMixin
+from django.contrib.auth.decorators import permission_required
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from django.core.paginator import Paginator
 
@@ -78,10 +79,11 @@ class ShowPost(DataMixin, DetailView):
 
 
 
-class AddPage(LoginRequiredMixin, DataMixin, CreateView):
+class AddPage(PermissionRequiredMixin, LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm  
     template_name = "women/addpage.html"
     title_page = "Добавление статьи"
+    permission_required = 'women.add_women'
     success_url = reverse_lazy("home")
     # login_url = '/admin/'
     
@@ -91,11 +93,13 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
         return super().form_valid(form)
 
 
-class UpdatePage(DataMixin, UpdateView):
+class UpdatePage(PermissionRequiredMixin, DataMixin, UpdateView):
     model = Women
     fields = ["title", "content", "photo", "is_published", "cat"]
     template_name = "women/addpage.html"
     title_page = "Редактирование статьи"
+    permission_required = 'women.change_women'
+
     success_url = reverse_lazy("home")
    
 
@@ -106,7 +110,7 @@ class DeletePage(DataMixin, DeleteView):
     title_page = "Удаление статьи"
     
 
-
+@permission_required(perm='women.view_women', raise_exception=True)
 def contact(request):
     return HttpResponse(f"Обратная связь")
 
