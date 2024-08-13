@@ -15,6 +15,9 @@ a:hover {
 	color: #CC0000;
 	text-decoration: underline;
 }
+.git_auth{
+	width: 50px;
+}
 
 img {max-width: 600px; height: auto;}
 
