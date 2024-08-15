@@ -18,7 +18,7 @@ from django.core.paginator import Paginator
 # from django.template.defaultfilters import slugify
 
 
-from .forms import AddPostForm, UploadFileForm
+from .forms import AddPostForm, UploadFileForm, ContactForm
 
 from .models import TagPost, UploadFiles, Women, Category
 
@@ -110,10 +110,15 @@ class DeletePage(DataMixin, DeleteView):
     title_page = "Удаление статьи"
     
 
-@permission_required(perm='women.view_women', raise_exception=True)
-def contact(request):
-    return HttpResponse(f"Обратная связь")
+class ContactFormView(LoginRequiredMixin, DataMixin, FormView):
+    form_class = ContactForm
+    template_name = "women/contact.html"
+    success_url = reverse_lazy('home')
+    title_page = "Обратная связь"
 
+    def form_valid(self, form):
+        print(form.cleaned_data)
+        return super().form_valid(form)
 
 def login(request):
     return HttpResponse(f"Авторизация")
