@@ -8,6 +8,7 @@ from django.views import View
 from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
 from .utils import DataMixin
 from django.contrib.auth.decorators import permission_required
+from django.core.cache import cache
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -22,7 +23,7 @@ from .forms import AddPostForm, UploadFileForm, ContactForm
 
 from .models import TagPost, UploadFiles, Women, Category
 
-# test
+
 
 
 
@@ -34,6 +35,10 @@ class WomenHome(DataMixin, ListView):
     
 
     def get_queryset(self):
+        w_lst = cache.get('women_posts')
+        if not w_lst:
+            w_lst = Women.published.all().select_related("cat")
+            cache.set('women_posts', w_lst, 60)
         return Women.published.all().select_related("cat")
 
 
