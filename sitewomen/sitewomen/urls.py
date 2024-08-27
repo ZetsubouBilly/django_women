@@ -18,7 +18,16 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf.urls.static import static
 from sitewomen import settings
+from women.sitemaps import CategorySitemap, PostSitemap
 from women import views
+from django.views.decorators.cache import cache_page
+from django.contrib.sitemaps.views import sitemap
+
+
+sitemaps = {
+    'post': PostSitemap,
+    'cats': CategorySitemap,
+}
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,6 +36,7 @@ urlpatterns = [
     path("__debug__/", include("debug_toolbar.urls")),
     path('social-auth/', include('social_django.urls', namespace='social')),
     path('captcha/', include('captcha.urls')),
+    path('sitemap.xml',cache_page(86400)(sitemap), {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     
 ]
 
