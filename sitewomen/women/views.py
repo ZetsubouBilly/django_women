@@ -1,28 +1,33 @@
 
 from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
-from django.http import Http404, HttpResponse, HttpResponseNotFound
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse, reverse_lazy
+
+from django.forms import model_to_dict
+from django.http import  HttpResponse, HttpResponseNotFound
+
+from django.shortcuts import get_object_or_404, render
+
+from django.urls import  reverse_lazy
+
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
-from .utils import DataMixin
-from django.contrib.auth.decorators import permission_required
-from django.core.cache import cache
+from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
+from django.core.cache import cache
 from django.core.paginator import Paginator
 
-# from django.template.loader import render_to_string
-# from django.template.defaultfilters import slugify
-
-
-from .forms import AddPostForm, UploadFileForm, ContactForm
+from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from .models import TagPost, UploadFiles, Women, Category
+from .serializers import WomenSerializer
+from .utils import DataMixin
+from .forms import AddPostForm, UploadFileForm, ContactForm
 
+from http import HTTPStatus
 
 
 
@@ -50,15 +55,7 @@ def about(request):
 
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    # if request.method == "POST":
-    #     form = UploadFileForm(request.POST, request.FILES)
-    #     if form.is_valid():
-            
-    #         fp = UploadFiles(file=form.cleaned_data["file"])
-    #         fp.save()
-    # else:
-    #     form = UploadFileForm()
-    # data = {"title": "О нас",  "form": form}
+
     data = {"title": "О нас",  "page_obj": page_obj}
 
     return render(request, "women/about.html", context=data)
@@ -78,10 +75,6 @@ class ShowPost(DataMixin, DetailView):
     def get_object(self, queryset=None):
 
         return get_object_or_404(Women.published, slug=self.kwargs[self.slug_url_kwarg])
-
-
-
-
 
 
 class AddPage(PermissionRequiredMixin, LoginRequiredMixin, DataMixin, CreateView):
@@ -129,8 +122,6 @@ def login(request):
     return HttpResponse(f"Авторизация")
 
 
-
-
 class WomenCategory(DataMixin, ListView):
     template_name = "women/index.html"
     context_object_name = 'posts'
@@ -146,9 +137,6 @@ class WomenCategory(DataMixin, ListView):
         cat = context['posts'][0].cat
         return self.get_mixin_context(context, title='Категория - '+ cat.name, cat_selected=cat.pk)
         
-
-
-
 
 class WomenTag(DataMixin, ListView):
     template_name = "women/index.html"
@@ -167,3 +155,26 @@ class WomenTag(DataMixin, ListView):
 
 def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
+
+
+# class WomenApiView(generics.ListAPIView):
+#     queryset = Women.objects.all()
+#     serializer_class = WomenSerializer
+
+
+class WomenApiView(APIView):
+    def get(self, request):
+        lst = Women.objects.all().values()
+        return Response({'posts': list(lst)})
+    
+    def post(self, request):
+        try:
+            post_new = Women.objects.create(
+                title=request.data['title'],     
+                slug=request.data['slug'],     
+                content=request.data['content'],
+                cat_id=request.data['cat_id'],
+            )
+            return Response({'post': model_to_dict(post_new)}, status=HTTPStatus.CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=HTTPStatus.BAD_REQUEST)
