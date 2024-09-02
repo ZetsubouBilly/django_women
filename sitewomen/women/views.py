@@ -164,10 +164,12 @@ def page_not_found(request, exception):
 
 class WomenApiView(APIView):
     def get(self, request):
-        lst = Women.objects.all().values()
-        return Response({'posts': list(lst)})
+        w = Women.objects.all()
+        return Response({'posts': WomenSerializer(w, many=True).data})
     
     def post(self, request):
+        serializer = WomenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         try:
             post_new = Women.objects.create(
                 title=request.data['title'],     
@@ -175,6 +177,6 @@ class WomenApiView(APIView):
                 content=request.data['content'],
                 cat_id=request.data['cat_id'],
             )
-            return Response({'post': model_to_dict(post_new)}, status=HTTPStatus.CREATED)
+            return Response({'post': WomenSerializer(post_new).data}, status=HTTPStatus.CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=HTTPStatus.BAD_REQUEST)
