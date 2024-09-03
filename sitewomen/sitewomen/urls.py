@@ -38,6 +38,7 @@ urlpatterns = [
     path('captcha/', include('captcha.urls')),
     path('sitemap.xml',cache_page(86400)(sitemap), {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path('api/v1/womenlist', views.WomenApiView.as_view()),
+    path('api/v1/womenlist/<int:pk>/', views.WomenApiView.as_view()),
     
 ]
 
