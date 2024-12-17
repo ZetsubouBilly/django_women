@@ -194,8 +194,8 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 AUTH_USER_MODEL = 'users.User'
 DEFAULT_USER_IMAGE = MEDIA_URL + 'users/default.png'
 
-SOCIAL_AUTH_GITHUB_KEY = 'Ov23liDROJSHMTwlOUcF'
-SOCIAL_AUTH_GITHUB_SECRET = '495165b57da0deac96373e8e9d7a67e514686726'
+SOCIAL_AUTH_GITHUB_KEY = 'SOCIAL_AUTH_GITHUB_KEY'
+SOCIAL_AUTH_GITHUB_SECRET = 'SOCIAL_AUTH_GITHUB_SECRET'
 
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
